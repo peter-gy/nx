@@ -59,17 +59,18 @@ function createFiles(tree: Tree, options: CypressProjectSchema) {
     }
   );
 
-  if (!cypressVersion || cypressVersion >= 7) {
-    const pluginPath = join(options.projectRoot, 'src/plugins/index.js');
-    if (tree.exists(pluginPath)) {
-      tree.delete(pluginPath);
-    }
-  } else {
-    // this will always be cypress v7 or lower
+  if (cypressVersion < 7) {
     updateJson(tree, join(options.projectRoot, 'cypress.json'), (json) => {
       json.pluginsFile = './src/plugins/index';
       return json;
     });
+  } else if (cypressVersion < 10) {
+    // v7 to v9
+    // we don't generate this file for v10+
+    const pluginPath = join(options.projectRoot, 'src/plugins/index.js');
+    if (tree.exists(pluginPath)) {
+      tree.delete(pluginPath);
+    }
   }
 
   if (options.js) {
